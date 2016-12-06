@@ -17,5 +17,5 @@ def setup_taskqueue_tables(taskpool):
         db.execute(s)
     db.commit()
     db.close
-    print('success.')
+    return True
     

@@ -1,12 +1,10 @@
 {
   "setup_sql": 
   [
-    "CREATE TABLE tasking_lock(lockid INTEGER PRIMARY KEY AUTOINCREMENT, locked INTEGER, current_taskid INTEGER, desc TEXT, update_time TEXT)",
+    "CREATE TABLE taskqueue(taskid INTEGER PRIMARY KEY AUTOINCREMENT, lockid INTEGER, items TEXT, qlocked INTEGER, desc TEXT, update_time TEXT)",
 
-    "CREATE TABLE tasks(taskid INTEGER PRIMARY KEY AUTOINCREMENT, lockid INTEGER, desc TEXT)",
+    "CREATE TABLE tasklock(lockid INTEGER PRIMARY KEY AUTOINCREMENT, locked INTEGER, current_taskid INTEGER, desc TEXT, update_time TEXT)",
 
-    "CREATE TABLE task_doing(taskid INTEGER, subtask_list TEXT, step TEXT, update_time TEXT)",
-
-    "CREATE TABLE task_appending(taskid INTEGER, subtask_list TEXT, locked INTEGER, update_time TEXT)"
+    "CREATE TABLE tasktracing(id INTEGER PRIMARY KEY AUTOINCREMENT, taskid INTEGER, start_time TEXT, items TEXT, tracing TEXT)"
   ]
 }
