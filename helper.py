@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""helper function"""
+"""helper functions"""
 
 import sqlite3
 

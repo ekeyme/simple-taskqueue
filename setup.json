@@ -1,7 +1,7 @@
 {
   "setup_sql": 
   [
-    "CREATE TABLE taskqueue(taskid INTEGER PRIMARY KEY AUTOINCREMENT, lockid INTEGER, items TEXT, qlocked INTEGER, desc TEXT, update_time TEXT)",
+    "CREATE TABLE taskqueue(taskid INTEGER PRIMARY KEY AUTOINCREMENT, lockid INTEGER, items TEXT NOT NULL DEFAULT '[]', qlocked INTEGER, desc TEXT, update_time TEXT)",
 
     "CREATE TABLE tasklock(lockid INTEGER PRIMARY KEY AUTOINCREMENT, locked INTEGER, current_taskid INTEGER, desc TEXT, update_time TEXT)",
 

@@ -13,7 +13,7 @@ from os.path import abspath, dirname
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 import taskqueue
-from taskqueue import TaskQueue
+from taskqueue import TaskQueue, do_task
 
 class RoutineTest(unittest.TestCase):
     
@@ -55,7 +55,7 @@ class RoutineTest(unittest.TestCase):
         self.db.commit()
 
         q = TaskQueue(self.dbf, self.taskid)
-        with self.assertRaises(taskqueue.QueueLockTimeOut):
+        with self.assertRaises(taskqueue.queue.QueueLockTimeOut):
             q.get()
 
     def test_taskqueue_get2(self):
@@ -120,6 +120,40 @@ class RoutineTest(unittest.TestCase):
                                WHERE taskid=?""", 
                             (self.taskid, )).fetchone()[0]
         self.assertEqual(r, '0:ok,1:fail,2:ok')
+
+    def test_tasklock3(self):
+        """tasklock should raise RuntimeError if you release a lock not owned by you"""
+
+        q = TaskQueue(self.dbf, self.taskid)
+        tasklock = q.tasklock()
+        assert tasklock.acquire()
+
+        q2 = TaskQueue(self.dbf, self.taskid)
+        tasklock2 = q2.tasklock()
+        with self.assertRaises(RuntimeError):
+            tasklock2.release()
+
+    def test_do_task(self):
+        """do_task should do the right things"""
+
+        def work_func(item):
+            if int(item[-1:]) % 2 == 0:
+                return True
+            return False
+
+        import time
+        time.sleep(5)
+        r = do_task(self.dbf, self.taskid, work_func)
+
+        self.assertEqual(r, 3)
+        q = TaskQueue(self.dbf, self.taskid)
+        taskinfo = q._taskinfo
+        self.assertEqual(q.get(), [])
+        self.assertEqual(taskinfo['locked'], 0)
+        tracing = self.db.execute("""SELECT tracing FROM tasktracing 
+                                     WHERE taskid=? ORDER BY id DESC LIMIT 1
+                                  """, (self.taskid,)).fetchone()[0]
+        self.assertEqual(tracing, "0:fail,1:ok,2:fail")
 
 
 if __name__ == '__main__':
